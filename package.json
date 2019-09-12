@@ -1,34 +1,18 @@
 {
-  "name": "restful",
+  "name": "start-workshop",
   "version": "1.0.0",
   "description": "node workshop",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon bin/www",
     "lint": "eslint ."
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.19.0",
-    "chalk": "^2.4.2",
-    "debug": "^4.1.1",
-    "express": "^4.17.0",
-    "morgan": "^1.9.1"
   },
   "devDependencies": {
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.17.3",
-    "nodemon": "^1.19.1"
-  },
-  "nodemonConfig": {
-    "ignore": "node_modules/**/node_modules",
-    "delay": 2500,
-    "env": {
-      "NODE_ENV": "development",
-      "PORT": "4000",
-      "DEBUG": "app,app*"
-    }
+    "eslint-plugin-import": "^2.17.3"
   }
 }
