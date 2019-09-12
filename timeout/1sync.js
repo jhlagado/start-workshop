@@ -1,12 +1,11 @@
 /* eslint-disable no-constant-condition */
-const { performance } = require('perf_hooks');
 
 const INTERVAL = 1000;
 
 const sleep = (value) => {
-  const endTime = performance.now() + INTERVAL;
+  const endTime = Date.now() + INTERVAL;
   while (true) {
-    if (endTime < performance.now()) break;
+    if (endTime < Date.now()) break;
   }
   return value;
 };
