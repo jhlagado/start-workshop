@@ -6,28 +6,18 @@ September 16, 2019
 
 # Agenda
 
-| Morning
-| -----------------------
-| Modern JavaScript
-| Node Architecture
-| Npm
-| The Node command
-| Modules
-| Debugging
-| Asynchronous operations
-| Examples
-
-| Afternoon
-|-------------
-| Serving HTTP
-| Express
-| Middleware
-| Logging
-| Routes
-| Mongo
-| Templates
-| Authentication
-| Summary
+```
+| Morning                 | Afternoon
+| ------------------------|-------------------
+| Modern JavaScript       | Serving HTTP
+| Node Architecture       | Express
+| Npm                     | Middleware
+| The Node command        | Logging
+| Modules                 | Routes
+| Debugging               | Mongo
+| Asynchronicity          | Templates
+| Examples                | Authentication
+```
 
 ---
 # Modern JavaScript
@@ -1149,16 +1139,6 @@ readFile(filepath, encoding, callback)
 writeFile(filepath, value, callback)
 ```
 
-
-
-
-
-
-
-
-
-
-
 ### "Callback Hell"
 
 Callbacks are straightforward when asynchronous operations are isolated but can grow complicated when they needed to be chained in a sequence.
@@ -1211,8 +1191,6 @@ new Promise((resolve, reject) => {
   reject(err);
 });
 ```
-
-***** TODO: give examples of promises
 
 ## Promisify
 
@@ -1488,38 +1466,4 @@ A middleware is simply a function with the signature
 Most middlewares append or modify the `req` or `res` objects. The last thing a middleware must do is call the `next()` function to pass execution on. If this is forgotten, the server will just hang.
 
 To use a middleware, the usual thing is to call the `use()` method on the server.
-
-***** timers
-setTimeout
-setImmediate
-nextTick
-
----
-# Logging
-
----
-# Routes
-
----
-# Introduction to Mongo
-
----
-# Templates
-
----
-# Authentication
-
----
-# Summary
-
-
----
-
-
-
-# debug
-# logging
-# env DEBUG
-# routes
-
 
