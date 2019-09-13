@@ -51,14 +51,13 @@ This is not an exhaustive list of the new features of JavaScript but includes mo
 ---
 ## let & const
 
-!! show example var, let, const
-
-These new keywords allow decalring variables that are scoped to a block of code instead of a function. Declarations are usually declared as `const` but when a name need to be reused you can declare them as `let`.
+These new keywords allow declaring variables that are scoped to a block of code instead of a function. Declarations are usually declared as `const` but when a name need to be reused you can declare them as `let`.
 
 ```js
 const x = 1;
 x = 2; // error
 ```
+
 ```js
 let x = 1;
 x = 2; // OK
@@ -66,6 +65,32 @@ x = 2; // OK
 
 NOTE: just because a variable has been declared as `const` this only refers to the name binding, it doesn't prevent a variable from being mutated.
 
+Traditionally variables were declared in JavaScript using the var keyword. Variables declared within a function are scoped to that function and can be referred to even before it's declared!
+
+```js
+const fun = (x) => {
+  if (x) {
+    var y = 1;
+  }
+  else {
+    y = 0;
+  }
+  console.log(y);
+}
+```
+```js
+const fun = (x) => {
+  if (x) {
+    const y = 1;
+  }
+  else {
+    // y is out of scope
+    y = 0;
+  }
+  // y is out of scope
+  console.log(y);
+}
+```
 ---
 ## Enhanced object literals
 ### Object key expressions
@@ -80,11 +105,9 @@ const obj = {
 ```
 ### Method function shorthand
 
-!! show how methods are called
-
 Old way
 ```js
-{
+const obj = {
   sayHello: function() {
     console.log('hello!');
   }
@@ -92,14 +115,17 @@ Old way
 ```
 New way
 ```js
-{
+const obj = {
   sayHello() {
     console.log('hello!');
   }
 }
 
 ```
-
+Both object methods are called as:
+```js
+obj.sayHello();
+```
 ---
 ## Arrow functions
 JavaScript now has a more convenient syntax for declaring anonymous lambda functions. Unlike the traditional `function` syntax, arrow functions have no implied variables called `this` or `arguments`.
@@ -437,12 +463,14 @@ m.get(s) == 34;
 
 ```
 ---
-!! talk about yarn briefly
-
 # Npm
 
 Npm is the package manager for the Node ecosystem. It connects your app to
 the Npm registry, by far the world's largest registry of software packages.
+
+### yarn
+
+Although npm is the most popular package manager, there is an alternative called `yarn` by FaceBook. While `yarn` has some advantages over `npm`, the latter is more common and will be the only one we will be using during this workshop
 
 ## NPM init
 To initialise a new project, create an empty directory and run
@@ -1014,14 +1042,17 @@ The `global` prefix is implied.
 
 Useful global variables include the entirety of JavaScript
 as well as
+
 ```
 console
 process
 os
 Buffer
 ```
+
 The console object
-```
+
+```js
 console.log()
 console.info()
 console.warn()
@@ -1029,14 +1060,16 @@ console.error()
 console.assert(cond, msg)
 ```
 The process object
-```
+
+```js
 process.env
 process.argv
 process.exit()
 process.nextTick(cb)
 ```
 The os object
-```
+
+```js
 os.tmpdir()
 os.endianness()
 os.hostname()
@@ -1061,7 +1094,7 @@ This creates a file in the .vscode directory of your project called `launch.json
 
 This file contains the configuration information to debug your application. For example:
 
-```
+```json
 {
     // Use IntelliSense to learn about possible attributes.
     // Hover to view descriptions of existing attributes.
@@ -1109,41 +1142,54 @@ Node uses the same event-driven architecture on the server to handle asynchronou
 ## Callback
 
 A node callback is a function with the signature
-```
+```js
 function (err, result) {
 
 }
 ```
-In node there is a convention where the first argument of the callback function is ALWAYS the error condition which is either null or an Error object.
-The second argument is the result of the asynchronous operation.
+In node there is a convention where the first argument of the callback function is ALWAYS the error condition which is either null or an Error object. The second argument is the result of the asynchronous operation.
 
 ## fs
 
 Let's look at a concrete example with Node's standard file reading functions.
 
-Synchronous
-
+```js
+const {
+  readFileSync, writeFileSync,
+  readFile, writeFile,
+} = require('fs');
 ```
-// blocks and returns a value
-readFileSync(filepath, encoding)
 
-// blocks until complete
+### Synchronous
+
+Synchronous operations block the main thread and return a result (or undefined).
+
+```js
+const value = readFileSync(filepath, encoding)
+
 writeFileSync(filepath, value)
 ```
-Asynchronous
-```
-// doesn't block, calls back with error or value
-readFile(filepath, encoding, callback)
 
-//doesn't block, call back with error or nothing
-writeFile(filepath, value, callback)
+### Asynchronous
+
+Asynchronous operations don't block the main thread and return their results in a callback function.
+
+```js
+readFile(filepath, encoding, (err, value) => {
+  // process err or value
+});
+
+writeFile(filepath, value, (err) => {
+  // process err
+});
+
 ```
 
 ### "Callback Hell"
 
 Callbacks are straightforward when asynchronous operations are isolated but can grow complicated when they needed to be chained in a sequence.
 
-```
+```js
 const createUser = function(username, password, picture, callback) {
    dataBase.createUser(username, password, (error, userID) => {
        if (error) {
@@ -1166,7 +1212,8 @@ const createUser = function(username, password, picture, callback) {
    })
 };
 
-createUser('John Hardy','xyz123','avatar.jpg', (err) => {
+createUser('John Hardy','xyz123','avatar.jpg',
+  (err) => {
     if (err) {
       console.log(err);
     }
@@ -1178,32 +1225,88 @@ createUser('John Hardy','xyz123','avatar.jpg', (err) => {
 ## Promises
 
 A promise is an object that contains a value, either now
-or sometime in the future. Asynchronous operations take place in
-function with two args which are also functions `resolve()` and `reject()`.
-```
-new Promise((resolve, reject) => {
-  // do something
+or at sometime in the future.
 
-  //if success
-  resolve(result)));
+A promise is an object that can be passed around and can be thought of as a kind of I.O.U. note, i.e. a promise to produce a value at a later date.
 
-  //if failure
-  reject(err);
+While superficially promises look a lot like callbacks, they have the advantage of be chainable and unlike callbacks, promises don't lead to heavily nested logic.
+
+A promise is an object that is created by passing a function with two args `resolve` and `reject` (which are also functions).
+
+```js
+const promise = new Promise(
+  (resolve, reject) => {
+
+    // do something
+
+    //if success
+    resolve(result)));
+
+    //if failure
+    reject(err);
 });
+```
+To read the value from a promise you pass a function to its `then` method.
+
+```js
+promise.then(
+  value => console.log('the value is ${value}')
+);
+```
+
+To read an error condition you pass a function to its `catch` method.
+
+```js
+promise.catch(
+  err => console.log('the error is ${err.message}')
+);
+```
+
+Promises can be chained
+
+```js
+promise
+  .then(value => value + 1)
+  .then(value => console.log('the value is ${value}'))
+  .catch(err => console.log('the error is ${err.message}'));
+```
+
+Caught exceptions in promises can be **recovered** from
+
+```js
+promise
+
+  .then(value => {
+    if () {
+      return value;
+    } else {
+      throw new Error('The value is negative!');
+    }
+  })
+
+  .catch(err => {
+    console.log('Error: ${err.message}');
+    return 0;
+  });
+
+  .then(
+    value => console.log('the value is ${value}')
+  );
 ```
 
 ## Promisify
 
-`promisify` is a utility function that comes standard with node. It is a `high order function`
-```
+`promisify` is a `high-order` utility function that comes standard with node.
+
 A High Order Function is a function which accepts a function as
 its input and returns a function as its result.
-```
+
 `promisify` accepts a node function which has a callback as its last parameter and returns function which returns a promise instead
 of the callback.
 
 For example:
-```
+
+```js
 readFile('file.txt', (err, value) => {
   if (err) {
     return console.log(err);
@@ -1211,19 +1314,23 @@ readFile('file.txt', (err, value) => {
   console.log(value);
 })
 ```
+
 can be converted to a promise based function
-```
+
+```js
 const { promisify } = require('util');
 const readFilePromise = promisify(readFile);
+
 readFilePromise('file.txt')
-  .catch(err => console.log(err))
   .then(value => console.log(value))
+  .catch(err => console.log(err))
 ```
 
 ### How promisify works
 
 the way `util.promisify` is implemented can be seen here:
-```
+
+```js
 const promisify = (func) =>
   (...args) =>
     new Promise((resolve, reject) =>
@@ -1232,11 +1339,13 @@ const promisify = (func) =>
       )
     );
 ```
-This syntax is called an `auto-curried` function which you can see from the multiple uses of the `=>` operator. You pass the node function that has the callback in its final argument e.g. `readFile` to `promisify` and it
+
+This syntax is called an `auto-curried` function which you can see from the multiple uses of the `=>` operator.
+
+You pass the node function that has the callback in its final argument e.g. `readFile` to `promisify` and it
 
 * returns another function which when called returns a new `Promise` object.
-* The `Promise` object kicks off its own function which calls the original node function
-with args and passes its own callback function.
+* The `Promise` object kicks off its own function which calls the original node function with args and passes its own callback function.
 * When that function completes, the promise is either resolved or rejected based on the result of the callback.
 
 The following example shows how to `promisify` the
@@ -1252,17 +1361,29 @@ const dbUpdatePicture = promisify(dataBase.updatePicture);
 ## Using promises
 
 Once "promisified" these functions can be used with code that expects promises.
-```
+
+```js
 const createUser = (username, password, picture) =>
+
   dbCreateUser(username, password)
-  .then(userID => [userID, cloudUploadPicture(picture)]
-  .then(([userID, path]) => dbUpdatePicture(userID, path);
+
+    .then(userID => ({
+      userID,
+      path: cloudUploadPicture(picture),
+    }))
+
+    .then(
+      ({userID, path}) => dbUpdatePicture(userID, path)
+    );
 
 createUser('John Hardy','xyz123','avatar.jpg')
-  .catch(err => console.log(err);
+
   .then(() => console.log('User created'));
+
+  .catch(err => console.log(err));
 ```
-Which is a lot shorter and simpler.
+
+Which is a lot shorter and easier to understand.
 
 Except for one thing...
 
@@ -1271,18 +1392,43 @@ it's complex to pass around intermediate results such as `userID`. Can you under
 
 In those cases it may still be simpler to nest one `then` handler inside another `then` handler.
 
-```
+```js
+
 const createUser = (username, password, picture) =>
+
   dbCreateUser(username, password)
+
   .then(userID =>
     cloudUploadPicture(picture)
     .then(path => dbUpdatePicture(userID, path)
   );
+
+```
+### One final note about Promisify
+
+Because promises are so fundamental to the future of JavaScipt, Node has been experiementing with promise-enabled versions of all its standard callback-based functions.
+
+We will be using these promisified standard functions later in this workshop. They are **MUCH** easier to work with that the traditional callback-based ones.
+
+For example you can import promise based functions from the `fs` module by
+
+```js
+const {
+  readFile, writeFile,
+} = require('fs').promises;
 ```
 
 ## Async/await
 
-This scope access issue is less of a problem with async/await syntax which we'll touch on briefly here. Async/await gives you the ability to do all of this asynchronous work in the same level of scope. Superficially it even looks like old-style imperative programming but despite this there are some gotchas with async/await and it's still necessary to understand promises in order to use it properly.
+This scope access issue (e.g. passing down `userID` from the previous example) is less of a problem with async/await syntax.
+
+Just as promises allow you to write flatter, less nested code, async/await allows you to do all your work at the same level of scope.
+
+Superficially async/await makes your code looks a lot more like old-style imperative programming and use fewer functions.
+
+That said, despite these similarities you still need to understand promises to use async/await effectively.
+
+This is what async/await looks like on the previous example. Note how userID is accessible to the dbUpdatePicture fuction because it is in the same scope.
 
 ```js
 const createUser = async (username, password, picture) => {
@@ -1290,18 +1436,31 @@ const createUser = async (username, password, picture) => {
   const path = await cloudUploadPicture(picture);
   await dbUpdatePicture(userID, path);
 }
+
+const run = async() => {
+  try {
+    await createUser('John Hardy','xyz123','avatar.jpg')
+    console.log('User created'));
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+run();
 ```
 
-## Promise API
+## The Promise API
 
-```
+```js
 Promise.resolve(value)   returns a promise that resolves to value
 Promise.reject(err)      returns a promise that rejects with err
 Promise.all([p1,p1...])  returns when EVERY promise resolves
 Promise.race([p1,p1...]) returns when ANY promise resolves
 ```
-Example of a promise that returns a random number after a time delay
-```
+
+Here is an example of a promise that returns a random number after a time delay
+
+```js
 const getRandomNumber = () => new Promise((resolve) => {
   setTimeout(
     () => resolve(Math.random() * 10),
@@ -1309,8 +1468,10 @@ const getRandomNumber = () => new Promise((resolve) => {
   );
 });
 ```
+
 A coin tossing function that uses the first function
-```
+
+```js
 const coinToss = new Promise((resolve, reject) =>
   getRandomNumber()
     .then(value => value < 0.5)
@@ -1319,19 +1480,18 @@ const coinToss = new Promise((resolve, reject) =>
 ```
 ---
 
-## Promise error handling
-
-A key advantage of promise syntax is in error handling. Errors simply fall through and can be optionally caught by the receiver of the promise.
-
-Chains of promises allow error conditions to be caught and even resumed. For example
+# Examples
 ```
-Promise.resolve('Hello')
-  .then((value) => {
-    console.log(value);
-    throw ('Hello error');
-  })
-  .catch(() => Promise.resolve('Hello recovery!'))
-  .then(value => console.log(value));
+
+
+
+
+
+
+
+
+
+
 ```
 
 # Serving HTTP
@@ -1413,9 +1573,11 @@ Which we can start with
 node examples/express/index-1.js
 ```
 or by specifying the PORT in the environment
+
 ```
 PORT=2233 node examples/express/index.js
 ```
+
 ## nodemon
 
 Because are often modifying server code we need to restart the server frequently. We can do this more coveniently by using the `nodemon` utility.
@@ -1457,12 +1619,14 @@ PORT=2233 npx nodemon examples/express/index.js
 Getting back to Express, a lot of functionality can be added to the server through so-called "middlware".
 
 A middleware is simply a function with the signature
+
 ```
 (req, res, next) => {
   //do something
   next();
 }
 ```
+
 Most middlewares append or modify the `req` or `res` objects. The last thing a middleware must do is call the `next()` function to pass execution on. If this is forgotten, the server will just hang.
 
 To use a middleware, the usual thing is to call the `use()` method on the server.
