@@ -12,9 +12,9 @@ const saveFile = async (object) => {
 const run = async (object) => {
   try {
     try {
-      fs.access(destDir);
+      await fs.access(destDir);
     } catch (err) {
-      fs.mkdir(destDir);
+      await fs.mkdir(destDir);
     }
     await saveFile(object);
     console.log('file has been saved');

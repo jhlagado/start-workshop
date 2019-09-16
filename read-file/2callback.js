@@ -3,7 +3,7 @@ const path = require('path');
 
 const srcFilePath = path.join(__dirname, 'source/data.json');
 
-const loadFile = (filename, callback) => {
+const loadFile = callback => {
   fs.readFile(srcFilePath, 'utf-8', (err, text) => {
     if (err) return callback(err, null);
     const object = JSON.parse(text);
@@ -15,7 +15,7 @@ const loadFile = (filename, callback) => {
 };
 
 const run = () => {
-  loadFile(srcFilePath, (err, object) => {
+  loadFile((err, object) => {
     if (err) {
       console.log(err.message);
     } else {

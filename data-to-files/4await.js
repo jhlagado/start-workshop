@@ -8,11 +8,14 @@ const loadData = async (srcPath) => {
   return data;
 };
 
-const saveFile = destDir => (item) => {
+const saveFile = destDir => async (item) => {
   if (!item.id) throw new Error('Format error: expected item to contain "id"');
   const destFilePath = path.join(destDir, `${item.id}.json`);
+  item.full_name = `${item.first_name} ${item.last_name}`;
   const string = JSON.stringify(item, null, 2);
-  return fs.writeFile(destFilePath, string);
+  await fs.writeFile(destFilePath, string);
+  const stats = await fs.stat(destFilePath);
+  return stats.size;
 };
 
 const srcFilePath = path.join(__dirname, 'source/data.json');
@@ -27,8 +30,8 @@ const run = async () => {
     }
     const data = await loadData(srcFilePath);
     const promises = data.map(saveFile(destDir));
-    await Promise.all(promises);
-    console.log('done!');
+    const sizes = await Promise.all(promises);
+    console.log(`done! ${sizes}`);
   } catch (err) {
     console.log(err.message);
   }

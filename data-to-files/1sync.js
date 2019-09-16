@@ -11,8 +11,11 @@ const loadData = (srcPath) => {
 const saveFile = destDir => (item) => {
   if (!item.id) throw new Error('Format error: expected item to contain "id"');
   const destFilePath = path.join(destDir, `${item.id}.json`);
+  item.full_name = `${item.first_name} ${item.last_name}`;
   const string = JSON.stringify(item, null, 2);
   fs.writeFileSync(destFilePath, string);
+  const stats = fs.statSync(destFilePath);
+  return stats.size;
 };
 
 const srcFilePath = path.join(__dirname, 'source/data.json');
@@ -26,8 +29,8 @@ const run = () => {
       fs.mkdirSync(destDir);
     }
     const data = loadData(srcFilePath);
-    data.forEach(saveFile(destDir));
-    console.log('done!');
+    const sizes = data.map(saveFile(destDir));
+    console.log(`done! ${sizes}`);
   } catch (err) {
     console.log(err.message);
   }

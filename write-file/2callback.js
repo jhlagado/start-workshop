@@ -9,7 +9,7 @@ const saveFile = (object, callback) => {
   fs.writeFile(destFilePath, text, callback);
 };
 
-const goWith = object => (err) => {
+const goWith = object => err => {
   try {
     if (err) throw err;
     saveFile(object, (err) => {
