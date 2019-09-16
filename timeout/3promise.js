@@ -16,17 +16,17 @@ const run = () => {
 
     .then((step1) => {
       console.log('Step 1 complete');
-      return step1;
+      return sleep(step1);
     })
 
     .then((step2) => {
       console.log('Step 2 complete');
-      return step2;
+      return sleep(step2);
     })
 
     .then((step3) => {
       console.log('Step 3 complete');
-      return step3;
+      return sleep(step3);
     })
 
     .then((message) => {
